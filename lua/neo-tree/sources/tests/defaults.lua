@@ -15,6 +15,7 @@ local config = {
         leave_dirs_open = false, -- `false` closes auto expanded dirs, such as with `:Neotree reveal`
         leave_files_open = false, -- `false` closes auto expanded files, such as with `:Neotree reveal`
     },
+    follow_tree_cursor = true, -- Preview the selected test location while moving in the tree
     group_dirs_and_files = true, -- when true, empty folders and files will be grouped together
     group_empty_dirs = true, -- when true, empty directories will be grouped together
     show_unloaded = true, -- show diagnostics from unloaded buffers

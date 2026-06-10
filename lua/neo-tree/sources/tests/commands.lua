@@ -29,8 +29,48 @@ M.jump_to_test = function(state, toggle_directory)
     if _type == "namespace" or _type == "test" then
         local utils = require("neo-tree.utils")
         local winid = utils.get_appropriate_window(state)
-        vim.print(winid)
         vim.api.nvim_win_set_cursor(winid, { extra.range[1] + 1, extra.range[2] })
+    end
+end
+
+---Show test location without moving focus away from the tests tree.
+---@param state neotree.StateWithTree
+---@param node? NuiTree.Node
+M.show_test = function(state, node)
+    if not state or not state.tree then
+        return
+    end
+
+    node = node or state.tree:get_node()
+    if not node or not node.extra or not node.extra.real_path then
+        return
+    end
+
+    local neo_win = vim.api.nvim_get_current_win()
+    local target_win = require("neo-tree.utils").get_appropriate_window(state)
+    if not target_win or not vim.api.nvim_win_is_valid(target_win) then
+        return
+    end
+
+    local bufnr = vim.fn.bufadd(node.extra.real_path)
+    if bufnr <= 0 then
+        return
+    end
+    vim.fn.bufload(bufnr)
+
+    vim.api.nvim_win_call(target_win, function()
+        if vim.api.nvim_win_get_buf(target_win) ~= bufnr then
+            vim.api.nvim_win_set_buf(target_win, bufnr)
+        end
+
+        local range = node.extra.range
+        if range then
+            pcall(vim.api.nvim_win_set_cursor, target_win, { range[1] + 1, range[2] })
+        end
+    end)
+
+    if vim.api.nvim_win_is_valid(neo_win) then
+        vim.api.nvim_set_current_win(neo_win)
     end
 end
 
